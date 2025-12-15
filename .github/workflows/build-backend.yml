@@ -48,11 +48,14 @@ jobs:
         run: ./gradlew buildImage
         working-directory: backend
 
+      - name: Set lowercase owner
+        run: echo "OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
+
       - name: Tag Docker image
         run: |
           docker tag ${IMAGE_NAME}:latest \
-            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${IMAGE_NAME}:latest
+            ${{ env.REGISTRY }}/${{ env.OWNER_LC }}/${IMAGE_NAME}:latest
 
       - name: Push Docker image
         run: |
-          docker push ${{ env.REGISTRY }}/${{ github.repository_owner }}/${IMAGE_NAME}:latest
+          docker push ${{ env.REGISTRY }}/${{ env.OWNER_LC }}/${IMAGE_NAME}:latest
