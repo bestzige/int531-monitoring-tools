@@ -38,7 +38,12 @@ dependencies {
 }
 
 ktor {
+    fatJar {
+        archiveFileName.set("fat.jar")
+    }
+
     docker {
-        imageTag.set("int531-backend:latest")
+        localImageName.set("int531-backend")
+        imageTag.set("latest")
     }
 }

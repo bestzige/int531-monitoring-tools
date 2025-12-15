@@ -34,7 +34,7 @@ jobs:
         working-directory: backend
 
       - name: Build fat JAR
-        run: ./gradlew :deployment-ktor-plugin:buildFatJar
+        run: ./gradlew buildFatJar
         working-directory: backend
 
       - name: Log in to GitHub Container Registry
@@ -45,7 +45,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Docker image
-        run: ./gradlew :deployment-ktor-plugin:runDocker
+        run: ./gradlew runDocker
         working-directory: backend
 
       - name: Tag Docker image
