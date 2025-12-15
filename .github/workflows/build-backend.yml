@@ -45,7 +45,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Docker image
-        run: ./gradlew buildImage
+        run: ./gradlew publishImageToLocalRegistry
         working-directory: backend
 
       - name: Set lowercase owner
