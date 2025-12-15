@@ -45,7 +45,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Docker image
-        run: ./gradlew runDocker
+        run: ./gradlew buildImage
         working-directory: backend
 
       - name: Tag Docker image
