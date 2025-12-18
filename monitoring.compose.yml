@@ -43,17 +43,6 @@ services:
       - monitoring
       - sre-network
 
-  prometheus-discord:
-    image: benjojo/prometheus-discord
-    container_name: prometheus-discord
-    restart: unless-stopped
-    environment:
-      DISCORD_WEBHOOK_URL: 'https://discord.com/api/webhooks/XXXXX/YYYYY'
-    ports:
-      - '9094:9094'
-    networks:
-      - monitoring
-
 networks:
   monitoring:
     driver: bridge
