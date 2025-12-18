@@ -35,3 +35,8 @@ scrape_configs:
       - files:
           - /etc/prometheus/targets/*.json
         refresh_interval: 5s
+
+  - job_name: mariadb
+    static_configs:
+      - targets:
+          - x-mariadb-exporter:9104
