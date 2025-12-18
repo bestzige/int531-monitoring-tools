@@ -1,0 +1,54 @@
+groups:
+  - name: mariadb-alerts
+    rules:
+      - alert: MariaDBDown
+        expr: mysqld_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: mariadb
+        annotations:
+          title: '🔴 MariaDB Down'
+          description: 'MariaDB exporter cannot scrape DB'
+          runbook: 'runbooks/mariadb.md#down'
+
+      - alert: MariaDBTooManyConnections
+        expr: |
+          mysql_global_status_threads_connected
+          /
+          mysql_global_variables_max_connections
+          > 0.8
+        for: 3m
+        labels:
+          severity: warning
+          service: mariadb
+        annotations:
+          title: '🔌 Too Many Connections'
+          description: 'Connections > 80%'
+          runbook: 'runbooks/mariadb.md#connections'
+
+      - alert: MariaDBSlowQueries
+        expr: rate(mysql_global_status_slow_queries[5m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+          service: mariadb
+        annotations:
+          title: '🐌 Slow Queries'
+          description: 'Slow queries increasing'
+          runbook: 'runbooks/mariadb.md#slow'
+
+      - alert: MariaDBHighBufferPoolUsage
+        expr: |
+          mysql_global_status_innodb_buffer_pool_bytes_data
+          /
+          mysql_global_variables_innodb_buffer_pool_size
+          > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          service: mariadb
+        annotations:
+          title: '🧠 InnoDB Buffer Pool Full'
+          description: 'Buffer pool usage > 90%'
+          runbook: 'runbooks/mariadb.md#bufferpool'

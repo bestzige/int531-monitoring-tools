@@ -1,0 +1,57 @@
+groups:
+  - name: api-golden-signals
+    rules:
+      - alert: ApiLowTraffic
+        expr: sum(rate(http_requests_total[5m])) < 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: api
+        annotations:
+          title: '🚦 API Traffic Drop'
+          description: 'Traffic < 0.1 req/s for 5 minutes'
+          runbook: 'runbooks/api-golden-signals.md#traffic'
+
+      - alert: ApiHighLatencyP95
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum by (le) (
+              rate(http_request_duration_seconds_bucket[5m])
+            )
+          ) > 1
+        for: 3m
+        labels:
+          severity: critical
+          service: api
+        annotations:
+          title: '⏱ High API Latency (p95)'
+          description: 'p95 latency > 1s'
+          runbook: 'runbooks/api-golden-signals.md#latency'
+
+      - alert: ApiHighErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{status=~"5.."}[5m]))
+            /
+            sum(rate(http_requests_total[5m]))
+          ) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+          service: api
+        annotations:
+          title: '❌ High API Error Rate'
+          description: '5xx error rate > 5%'
+          runbook: 'runbooks/api-golden-signals.md#errors'
+
+      - alert: ApiHighSaturation
+        expr: active_requests > 50
+        for: 3m
+        labels:
+          severity: warning
+          service: api
+        annotations:
+          title: '🧠 High Saturation'
+          description: 'Active requests > 50'
+          runbook: 'runbooks/api-golden-signals.md#saturation'

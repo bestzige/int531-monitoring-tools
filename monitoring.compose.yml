@@ -3,33 +3,61 @@ services:
     image: grafana/grafana
     container_name: grafana
     restart: unless-stopped
-    environment:
-      - GF_PLUGINS_PREINSTALL=grafana-clock-panel
     ports:
-      - "3000:3000"
+      - '3001:3000'
     volumes:
       - grafana_data:/var/lib/grafana
     networks:
       - monitoring
+      - sre-network
 
   prometheus:
     image: prom/prometheus
     container_name: prometheus
     restart: unless-stopped
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - 'host.docker.internal:host-gateway'
     ports:
-      - "9090:9090"
+      - '9090:9090'
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/rules:/etc/prometheus/rules
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--web.enable-lifecycle'
     networks:
       - monitoring
-      - app-network
+      - sre-network
+
+  alertmanager:
+    image: prom/alertmanager
+    container_name: alertmanager
+    restart: unless-stopped
+    ports:
+      - '9093:9093'
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+    networks:
+      - monitoring
+      - sre-network
+
+  prometheus-discord:
+    image: benjojo/prometheus-discord
+    container_name: prometheus-discord
+    restart: unless-stopped
+    environment:
+      DISCORD_WEBHOOK_URL: 'https://discord.com/api/webhooks/XXXXX/YYYYY'
+    ports:
+      - '9094:9094'
+    networks:
+      - monitoring
 
 networks:
   monitoring:
     driver: bridge
-  app-network:
+  sre-network:
     external: true
 
 volumes:
