@@ -24,7 +24,7 @@ scrape_configs:
           - host.docker.internal:9100
 
   - job_name: api_metrics
-    scheme: https
+    scheme: http
     metrics_path: /api/metrics
     static_configs:
       - targets:
