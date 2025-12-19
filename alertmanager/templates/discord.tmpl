@@ -4,20 +4,19 @@
 {{- end }}
 
 **{{- if .CommonAnnotations.title -}}{{ .CommonAnnotations.title }}{{- else -}}{{ .CommonLabels.alertname }}{{- end -}}**
-
 {{- if eq .CommonLabels.severity "critical" }}
 @here
 {{- end }}
 
 ━━━━━━━━━━━━━━━━━━━━━━
 🔥 Status   : {{- if eq .Status "firing" -}}FIRING{{- else -}}RESOLVED{{- end }}
-🚦 Severity : {{- .CommonLabels.severity | default "Unknown" }}
-🧩 Service  : {{- .CommonLabels.service  | default "N/A" }}
+🚦 Severity : {{- if .CommonLabels.severity -}}{{ .CommonLabels.severity }}{{- else -}}Unknown{{- end }}
+🧩 Service  : {{- if .CommonLabels.service -}}{{ .CommonLabels.service }}{{- else -}}N/A{{- end }}
 
 {{- range .Alerts }}
 ━━━━━━━━━━━━━━━━━━━━━━
-🖥 Instance : {{- .Labels.instance | default "N/A" }}
-📄 Details  : {{- .Annotations.description | default "No Description" }}
+🖥 Instance : {{- if .Labels.instance -}}{{ .Labels.instance }}{{- else -}}N/A{{- end }}
+📄 Details  : {{- if .Annotations.description -}}{{ .Annotations.description }}{{- else -}}No Description{{- end }}
 
 {{- if .Annotations.runbook }}
 📘 Runbook
