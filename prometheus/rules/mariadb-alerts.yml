@@ -1,17 +1,19 @@
 groups:
   - name: mariadb-alerts
     rules:
+      # MariaDB / Exporter DOWN
       - alert: MariaDBDown
-        expr: mysqld_up == 0
+        expr: up{job="mariadb"} == 0
         for: 1m
         labels:
           severity: critical
           service: mariadb
         annotations:
           title: '🔴 MariaDB Down'
-          description: 'MariaDB exporter cannot scrape DB'
           runbook: 'runbooks/mariadb.md#down'
+          description: 'MariaDB exporter (x-mariadb-exporter:9104) is unreachable'
 
+      # Too many connections
       - alert: MariaDBTooManyConnections
         expr: |
           mysql_global_status_threads_connected
@@ -24,9 +26,10 @@ groups:
           service: mariadb
         annotations:
           title: '🔌 Too Many Connections'
-          description: 'Connections > 80%'
           runbook: 'runbooks/mariadb.md#connections'
+          description: 'Connections exceed 80%'
 
+      # Slow queries
       - alert: MariaDBSlowQueries
         expr: rate(mysql_global_status_slow_queries[5m]) > 1
         for: 5m
@@ -38,6 +41,7 @@ groups:
           description: 'Slow queries increasing'
           runbook: 'runbooks/mariadb.md#slow'
 
+      # InnoDB buffer pool
       - alert: MariaDBHighBufferPoolUsage
         expr: |
           mysql_global_status_innodb_buffer_pool_bytes_data
@@ -49,6 +53,6 @@ groups:
           severity: warning
           service: mariadb
         annotations:
-          title: '🧠 InnoDB Buffer Pool Full'
-          description: 'Buffer pool usage > 90%'
           runbook: 'runbooks/mariadb.md#bufferpool'
+          title: '🧠 Buffer Pool Almost Full'
+          description: 'InnoDB buffer pool usage > 90%'
