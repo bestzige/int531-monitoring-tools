@@ -14,7 +14,7 @@
 
 ## Down
 
-### 🔴 Alert: `MariaDBDown`
+### Alert: `MariaDBDown`
 
 **Severity:** Critical
 **Trigger:** `up{job="mariadb"} == 0` **OR** `mysql_up == 0` for 2 minutes
@@ -56,12 +56,12 @@ This usually indicates MariaDB is down, stuck, or unreachable.
 
 ## Connections
 
-### 🔌 Alert: `MariaDBTooManyConnections`
+### Alert: `MariaDBTooManyConnections`
 
 **Severity:** Warning
 **Meaning:** Active connections exceed **80%** of `max_connections` for 5 minutes.
 
-### 🚨 Alert: `MariaDBConnectionExhaustion`
+### Alert: `MariaDBConnectionExhaustion`
 
 **Severity:** Critical
 **Meaning:** Active connections exceed **95%**, new connections may be rejected.
@@ -101,12 +101,12 @@ SHOW PROCESSLIST;
 
 ## Slow Queries & Latency
 
-### 🐌 Alert: `MariaDBSlowQueries`
+### Alert: `MariaDBSlowQueries`
 
 **Severity:** Warning
 **Meaning:** Slow queries exceed **1 per second** for 5 minutes.
 
-### ⏱ Alert: `MariaDBQueryLatencyDegraded`
+### Alert: `MariaDBQueryLatencyDegraded`
 
 **Severity:** Critical
 **Meaning:** More than **10% of queries** are classified as slow.
@@ -144,12 +144,12 @@ EXPLAIN <query>;
 
 ## InnoDB Buffer Pool
 
-### 🧠 Alert: `MariaDBHighBufferPoolUsage`
+### Alert: `MariaDBHighBufferPoolUsage`
 
 **Severity:** Warning
 **Meaning:** Buffer pool usage > **90%** for 10 minutes.
 
-### 🚨 Alert: `MariaDBBufferPoolCritical`
+### Alert: `MariaDBBufferPoolCritical`
 
 **Severity:** Critical
 **Meaning:** Buffer pool usage > **97%**, increased disk reads and latency risk.

@@ -16,10 +16,10 @@
 
 ## Down
 
-### 🔴 Alert: `NodeDown`
+### Alert: `NodeDown`
 
 **Severity:** Critical
-**Trigger:** `up{job="node-exporter"} == 0` for 2 minutes
+**Trigger:** `up{job="node"} == 0` for 2 minutes
 
 **Meaning:**
 
@@ -30,7 +30,7 @@ On Proxmox, this often indicates a **VM crash, freeze, or host-level issue**.
 
 ### Immediate Checks
 
-- Check Prometheus **Targets** page for `job=node-exporter`
+- Check Prometheus **Targets** page for `job=node`
 - Verify VM power state in **Proxmox UI**
 - Test network connectivity (ping / SSH)
 - Check node-exporter service on the VM
@@ -59,15 +59,15 @@ On Proxmox, this often indicates a **VM crash, freeze, or host-level issue**.
 
 ## CPU & Saturation
 
-### ⚠️ Alert: `NodeHighCpuUsage`
+### Alert: `NodeHighCpuUsage`
 
 **Severity:** Warning
-**Meaning:** CPU usage > 80% for sustained period
+**Meaning:** CPU usage exceeds 80% for a sustained period
 
-### 🚨 Alert: `NodeCpuSaturationCritical`
+### Alert: `NodeCpuCritical`
 
 **Severity:** Critical
-**Meaning:** CPU usage > 95%, workload starvation likely
+**Meaning:** CPU usage exceeds 95%, workload starvation likely
 
 ### Immediate Checks
 
@@ -101,15 +101,15 @@ mpstat -P ALL 1
 
 ## Memory Pressure
 
-### ⚠️ Alert: `NodeHighMemoryUsage`
+### Alert: `NodeHighMemoryUsage`
 
 **Severity:** Warning
-**Meaning:** Available memory < 20%
+**Meaning:** Available memory below 15%
 
-### 🚨 Alert: `NodeMemoryCritical`
+### Alert: `NodeMemoryCritical`
 
 **Severity:** Critical
-**Meaning:** Available memory < 10%, OOM risk
+**Meaning:** Available memory below 5%, OOM risk
 
 ### Immediate Checks
 
@@ -124,7 +124,7 @@ ps aux --sort=-%mem | head
 - Memory leaks
 - Too many services on VM
 - Insufficient RAM allocation
-- Cache growth (DB, JVM, etc.)
+- Cache growth (databases, JVM, etc.)
 
 ### Mitigation
 
@@ -135,21 +135,21 @@ ps aux --sort=-%mem | head
 
 ### Escalation
 
-- Page on-call if OOM events observed
+- Page on-call if OOM events are observed
 
 ---
 
 ## Disk Capacity & IO
 
-### ⚠️ Alert: `NodeDiskFillingUp`
+### Alert: `NodeDiskAlmostFull`
 
 **Severity:** Warning
-**Meaning:** Disk usage > 80%
+**Meaning:** Available disk space below 15%
 
-### 🚨 Alert: `NodeDiskFullImminent`
+### Alert: `NodeDiskCritical`
 
 **Severity:** Critical
-**Meaning:** Disk usage > 90%, write failures likely
+**Meaning:** Available disk space below 5%, write failures likely
 
 ### Immediate Checks
 
@@ -168,20 +168,20 @@ iostat -xz 1
 
 ### Mitigation
 
-- Clean up logs and temp files
+- Clean up logs and temporary files
 - Rotate logs
 - Expand disk in Proxmox
 - Migrate VM storage if IO wait is high
 
 ### Escalation
 
-- Escalate immediately if root filesystem is impacted
+- Escalate immediately if the root filesystem is impacted
 
 ---
 
 ## Load & Scheduling
 
-### ⚠️ Alert: `NodeHighLoad`
+### Alert: `NodeHighLoad`
 
 **Severity:** Warning
 **Meaning:** Load average exceeds CPU core count
@@ -203,16 +203,16 @@ htop
 
 - Reduce concurrency
 - Scale services
-- Increase vCPU or migrate VM
+- Increase vCPU allocation or migrate VM
 
 ---
 
 ## Network Errors
 
-### ⚠️ Alert: `NodeNetworkErrors`
+### Alert: `NodeNetworkErrors`
 
 **Severity:** Warning
-**Meaning:** Network receive/transmit errors detected
+**Meaning:** Network receive or transmit errors detected
 
 ### Immediate Checks
 
@@ -231,18 +231,18 @@ ethtool -S <iface>
 ### Mitigation
 
 - Restart network interface
-- Validate MTU and bridge config
+- Validate MTU and bridge configuration
 - Migrate VM to another host
 
 ### Escalation
 
-- Escalate if errors persist or multiple VMs affected
+- Escalate if errors persist or multiple VMs are affected
 
 ---
 
 ## General Guidelines
 
-- Node alerts indicate **infrastructure health**, treat as high priority
+- Node alerts indicate **infrastructure health** and should be treated as high priority
 - Always correlate with **Proxmox host metrics**
 - IO wait and CPU steal are early warning signs
 - Prefer VM migration over restarts when possible

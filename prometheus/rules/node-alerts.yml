@@ -12,8 +12,8 @@ groups:
           severity: critical
           service: node
         annotations:
-          title: '🔴 Node Down ({{ $labels.instance }})'
-          description: 'Node exporter unreachable. VM may be down or unreachable.'
+          title: 'Node Down ({{ $labels.instance }})'
+          description: 'Node exporter unreachable. The VM or host may be down or unreachable.'
           runbook: 'runbooks/node.md#down'
 
       # =====================================================
@@ -29,8 +29,8 @@ groups:
           severity: warning
           service: node
         annotations:
-          title: '🔥 High CPU Usage ({{ $labels.instance }})'
-          description: 'CPU usage > 80% for 5 minutes.'
+          title: 'High CPU Usage ({{ $labels.instance }})'
+          description: 'CPU usage exceeds 80% for 5 minutes.'
           runbook: 'runbooks/node.md#cpu'
 
       - alert: NodeCpuCritical
@@ -43,8 +43,8 @@ groups:
           severity: critical
           service: node
         annotations:
-          title: '🚨 CPU Saturated ({{ $labels.instance }})'
-          description: 'CPU usage > 95%, scheduling latency expected.'
+          title: 'CPU Saturated ({{ $labels.instance }})'
+          description: 'CPU usage exceeds 95%, scheduling latency expected.'
           runbook: 'runbooks/node.md#cpu'
 
       # =====================================================
@@ -59,8 +59,8 @@ groups:
           severity: warning
           service: node
         annotations:
-          title: '🧠 High Memory Usage ({{ $labels.instance }})'
-          description: 'Available memory < 15%.'
+          title: 'High Memory Usage ({{ $labels.instance }})'
+          description: 'Available memory is below 15%.'
           runbook: 'runbooks/node.md#memory'
 
       - alert: NodeMemoryCritical
@@ -72,8 +72,8 @@ groups:
           severity: critical
           service: node
         annotations:
-          title: '🚨 Memory Exhaustion ({{ $labels.instance }})'
-          description: 'Available memory < 5%, OOM risk.'
+          title: 'Memory Exhaustion ({{ $labels.instance }})'
+          description: 'Available memory is below 5%, OOM risk is high.'
           runbook: 'runbooks/node.md#memory'
 
       # =====================================================
@@ -82,27 +82,29 @@ groups:
       - alert: NodeDiskAlmostFull
         expr: |
           node_filesystem_avail_bytes{job="node", fstype!~"tmpfs|overlay"}
-          / node_filesystem_size_bytes{job="node", fstype!~"tmpfs|overlay"} < 0.15
+          /
+          node_filesystem_size_bytes{job="node", fstype!~"tmpfs|overlay"} < 0.15
         for: 10m
         labels:
           severity: warning
           service: node
         annotations:
-          title: '💾 Disk Almost Full ({{ $labels.instance }})'
-          description: 'Disk space < 15%.'
+          title: 'Disk Almost Full ({{ $labels.instance }})'
+          description: 'Available disk space is below 15%.'
           runbook: 'runbooks/node.md#disk'
 
       - alert: NodeDiskCritical
         expr: |
           node_filesystem_avail_bytes{job="node", fstype!~"tmpfs|overlay"}
-          / node_filesystem_size_bytes{job="node", fstype!~"tmpfs|overlay"} < 0.05
+          /
+          node_filesystem_size_bytes{job="node", fstype!~"tmpfs|overlay"} < 0.05
         for: 2m
         labels:
           severity: critical
           service: node
         annotations:
-          title: '🚨 Disk Full ({{ $labels.instance }})'
-          description: 'Disk space < 5%, writes may fail.'
+          title: 'Disk Full ({{ $labels.instance }})'
+          description: 'Available disk space is below 5%, write failures likely.'
           runbook: 'runbooks/node.md#disk'
 
       # =====================================================
@@ -120,8 +122,8 @@ groups:
           severity: warning
           service: node
         annotations:
-          title: '📈 High System Load ({{ $labels.instance }})'
-          description: 'Load15 exceeds CPU core count.'
+          title: 'High System Load ({{ $labels.instance }})'
+          description: '15-minute system load exceeds CPU core count.'
           runbook: 'runbooks/node.md#load'
 
       # =====================================================
@@ -137,8 +139,8 @@ groups:
           severity: warning
           service: node
         annotations:
-          title: '⏱ High IO Wait ({{ $labels.instance }})'
-          description: 'Disk IO wait > 20%, storage latency suspected.'
+          title: 'High IO Wait ({{ $labels.instance }})'
+          description: 'IO wait exceeds 20%, storage latency is likely.'
           runbook: 'runbooks/node.md#disk'
 
       # =====================================================
@@ -154,6 +156,6 @@ groups:
           severity: warning
           service: node
         annotations:
-          title: '🌐 Network Errors ({{ $labels.instance }})'
-          description: 'Network packet errors detected.'
+          title: 'Network Errors ({{ $labels.instance }})'
+          description: 'Network packet errors detected on the node.'
           runbook: 'runbooks/node.md#network'

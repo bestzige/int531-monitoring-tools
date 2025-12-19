@@ -12,7 +12,7 @@ groups:
           severity: critical
           service: api
         annotations:
-          title: '🚨 API Down'
+          title: 'API Down'
           description: 'Prometheus cannot scrape the API target.'
           runbook: 'runbooks/api-golden-signals.md#availability'
 
@@ -21,14 +21,14 @@ groups:
       # =====================================================
       - alert: ApiLowTraffic
         expr: |
-          sum(rate(api_http_requests_total[1h])) < 0.1
-        for: 1h
+          sum(rate(api_http_requests_total{service="api"}[1d])) < 0.1
+        for: 1d
         labels:
           severity: warning
           service: api
         annotations:
-          title: '🚦 API Traffic Drop'
-          description: 'Request rate below 0.1 req/s for 1 minutes.'
+          title: 'API Traffic Drop'
+          description: 'Request rate below 0.1 req/s for 1 day.'
           runbook: 'runbooks/api-golden-signals.md#traffic'
 
       # =====================================================
@@ -39,7 +39,7 @@ groups:
           histogram_quantile(
             0.95,
             sum by (le) (
-              rate(api_http_request_duration_seconds_bucket[5m])
+              rate(api_http_request_duration_seconds_bucket{service="api"}[5m])
             )
           ) > 1
         for: 3m
@@ -47,7 +47,7 @@ groups:
           severity: warning
           service: api
         annotations:
-          title: '⏱ High API Latency (p95)'
+          title: 'High API Latency (p95)'
           description: '95th percentile latency is above 1 second.'
           runbook: 'runbooks/api-golden-signals.md#latency'
 
@@ -56,7 +56,7 @@ groups:
           histogram_quantile(
             0.99,
             sum by (le) (
-              rate(api_http_request_duration_seconds_bucket[5m])
+              rate(api_http_request_duration_seconds_bucket{service="api"}[5m])
             )
           ) > 2
         for: 2m
@@ -64,71 +64,88 @@ groups:
           severity: critical
           service: api
         annotations:
-          title: '🐢 High API Latency (p99)'
+          title: 'High API Latency (p99)'
           description: '99th percentile latency is above 2 seconds.'
           runbook: 'runbooks/api-golden-signals.md#latency'
 
       - alert: ApiTooManySlowRequests
         expr: |
           (
-            sum(rate(api_http_request_duration_seconds_bucket{le="1"}[5m]))
+            sum(rate(api_http_request_duration_seconds_bucket{le="1",service="api"}[5m]))
             /
-            sum(rate(api_http_request_duration_seconds_count[5m]))
+            sum(rate(api_http_request_duration_seconds_count{service="api"}[5m]))
           ) < 0.9
         for: 3m
         labels:
           severity: warning
           service: api
         annotations:
-          title: '🐌 Too Many Slow Requests'
+          title: 'Too Many Slow Requests'
           description: 'More than 10% of requests exceed 1 second.'
           runbook: 'runbooks/api-golden-signals.md#latency'
 
       # =====================================================
       # ERRORS
       # =====================================================
-      - alert: ApiHighErrorRate
-        expr: |
-          (
-            sum(rate(api_http_requests_total{status=~"5.."}[5m]))
-            /
-            sum(rate(api_http_requests_total[5m]))
-          ) > 0.05
-        for: 2m
-        labels:
-          severity: critical
-          service: api
-        annotations:
-          title: '❌ High API Error Rate'
-          description: '5xx error rate above 5%.'
-          runbook: 'runbooks/api-golden-signals.md#errors'
 
-      - alert: ApiErrorSpike
+      # Immediate signal: any 500 per route
+      - alert: ApiRoute500Error
         expr: |
-          sum(rate(api_http_requests_total{status=~"5.."}[1m])) > 5
+          sum by (method, route) (
+            increase(api_http_requests_total{status="500",service="api"}[1m])
+          ) > 0
         for: 1m
         labels:
           severity: critical
           service: api
         annotations:
-          title: '🔥 API Error Spike'
-          description: 'Sudden spike in 5xx errors.'
+          title: 'API 500 Error'
+          description: |
+            500 error detected.
+            Method: {{ $labels.method }}
+            Route: {{ $labels.route }}
           runbook: 'runbooks/api-golden-signals.md#errors'
 
-      - alert: ApiErrorBudgetBurn
+      # Spike-based alert (noise resistant)
+      - alert: ApiRoute500Spike
         expr: |
-          (
-            sum(rate(api_http_requests_total{status=~"5.."}[5m]))
-            /
-            sum(rate(api_http_requests_total[5m]))
-          ) > 0.10
-        for: 5m
+          sum by (method, route) (
+            rate(api_http_requests_total{status="500",service="api"}[1m])
+          ) > 1
+        for: 1m
         labels:
           severity: critical
           service: api
         annotations:
-          title: '📉 Error Budget Burning Fast'
-          description: 'Error rate above 10%, SLO at risk.'
+          title: 'API 500 Error Spike'
+          description: |
+            High rate of 500 errors.
+            Method: {{ $labels.method }}
+            Route: {{ $labels.route }}
+          runbook: 'runbooks/api-golden-signals.md#errors'
+
+      # Error rate per route
+      - alert: ApiRouteHighErrorRate
+        expr: |
+          (
+            sum by (method, route) (
+              rate(api_http_requests_total{status=~"5..",service="api"}[5m])
+            )
+            /
+            sum by (method, route) (
+              rate(api_http_requests_total{service="api"}[5m])
+            )
+          ) > 0.10
+        for: 2m
+        labels:
+          severity: critical
+          service: api
+        annotations:
+          title: 'High API Error Rate'
+          description: |
+            5xx error rate above 10%.
+            Method: {{ $labels.method }}
+            Route: {{ $labels.route }}
           runbook: 'runbooks/api-golden-signals.md#error-budget'
 
       # =====================================================
@@ -136,12 +153,12 @@ groups:
       # =====================================================
       - alert: ApiHighSaturation
         expr: |
-          max(api_http_requests_in_flight) > 50
+          max(api_http_requests_in_flight{service="api"}) > 50
         for: 3m
         labels:
           severity: warning
           service: api
         annotations:
-          title: '🧠 High API Saturation'
+          title: 'High API Saturation'
           description: 'Too many in-flight requests.'
           runbook: 'runbooks/api-golden-signals.md#saturation'
