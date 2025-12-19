@@ -1,0 +1,19 @@
+global:
+  resolve_timeout: 5m
+
+templates:
+  - /etc/alertmanager/templates/*.tmpl
+
+route:
+  receiver: discord
+  group_by: ['alertname', 'severity', 'service']
+  group_wait: 10s
+  group_interval: 1m
+  repeat_interval: 1h
+
+receivers:
+  - name: discord
+    discord_configs:
+      - webhook_url: https://discord.com/api/webhooks/WEBHOOK_ID/WEBHOOK_TOKEN
+        send_resolved: true
+        message: '{{ template "discord.message" . }}'

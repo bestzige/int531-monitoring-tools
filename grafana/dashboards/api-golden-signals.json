@@ -1,0 +1,217 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_PROMETHEUS",
+      "label": "Prometheus",
+      "type": "datasource",
+      "pluginId": "prometheus"
+    }
+  ],
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "9.0.0"
+    },
+    {
+      "type": "datasource",
+      "id": "prometheus",
+      "name": "Prometheus",
+      "version": "1.0.0"
+    }
+  ],
+
+  "title": "API Dashboard",
+  "uid": "api-dashboard",
+  "timezone": "browser",
+  "schemaVersion": 42,
+  "refresh": "10s",
+  "time": { "from": "now-30m", "to": "now" },
+
+  "templating": {
+    "list": [
+      {
+        "name": "service",
+        "label": "Service",
+        "type": "query",
+        "datasource": "${DS_PROMETHEUS}",
+        "query": {
+          "query": "label_values(api_http_requests_total, service)"
+        },
+        "includeAll": true,
+        "allValue": ".*",
+        "current": { "text": "All Services", "value": ".*" }
+      }
+    ]
+  },
+
+  "panels": [
+    {
+      "id": 1,
+      "title": "Incoming Traffic (Requests / Second)",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "sum(rate(api_http_requests_total{service=~\"$service\"}[5m]))",
+          "legendFormat": "Total Requests",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "req/s" } }
+    },
+
+    {
+      "id": 2,
+      "title": "API Latency (p50 · p90 · p95)",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.5, sum by (le) (rate(api_http_request_duration_seconds_bucket{service=~\"$service\"}[5m])))",
+          "legendFormat": "p50 (Median)",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.9, sum by (le) (rate(api_http_request_duration_seconds_bucket{service=~\"$service\"}[5m])))",
+          "legendFormat": "p90",
+          "refId": "B"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(api_http_request_duration_seconds_bucket{service=~\"$service\"}[5m])))",
+          "legendFormat": "p95 (Tail)",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+
+    {
+      "id": 3,
+      "title": "Server Error Rate (5xx %)",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "(sum(rate(api_http_requests_total{service=~\"$service\",status=~\"5..\"}[5m])) / clamp_min(sum(rate(api_http_requests_total{service=~\"$service\"}[5m])), 1)) * 100",
+          "legendFormat": "Error %",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "percent" } }
+    },
+
+    {
+      "id": 4,
+      "title": "In-Flight Requests (Current Load)",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "api_http_requests_in_flight{service=~\"$service\"}",
+          "legendFormat": "Active Requests",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "id": 5,
+      "title": "CPU Usage (Process)",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 16, "w": 12, "h": 8 },
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "rate(api_node_process_cpu_seconds_total{service=~\"$service\"}[5m])",
+          "legendFormat": "CPU Seconds / Second",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+
+    {
+      "id": 6,
+      "title": "Memory Usage (RSS & Heap)",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 16, "w": 12, "h": 8 },
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "api_node_process_resident_memory_bytes{service=~\"$service\"}",
+          "legendFormat": "Resident Memory (RSS)",
+          "refId": "A"
+        },
+        {
+          "expr": "api_node_nodejs_heap_size_used_bytes{service=~\"$service\"}",
+          "legendFormat": "Heap Used",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "bytes" } }
+    },
+
+    {
+      "id": 7,
+      "title": "Event Loop Latency",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 24, "w": 12, "h": 8 },
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "api_node_nodejs_eventloop_lag_p50_seconds{service=~\"$service\"}",
+          "legendFormat": "p50",
+          "refId": "A"
+        },
+        {
+          "expr": "api_node_nodejs_eventloop_lag_p90_seconds{service=~\"$service\"}",
+          "legendFormat": "p90",
+          "refId": "B"
+        },
+        {
+          "expr": "api_node_nodejs_eventloop_lag_p99_seconds{service=~\"$service\"}",
+          "legendFormat": "p99",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+
+    {
+      "id": 8,
+      "title": "Garbage Collection Duration (p95)",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 24, "w": 12, "h": 8 },
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(api_node_nodejs_gc_duration_seconds_bucket{service=~\"$service\"}[5m])))",
+          "legendFormat": "GC p95",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+
+    {
+      "id": 9,
+      "title": "Slowest Routes (p95 Latency)",
+      "type": "table",
+      "gridPos": { "x": 0, "y": 32, "w": 24, "h": 8 },
+      "datasource": "${DS_PROMETHEUS}",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, route) (rate(api_http_request_duration_seconds_bucket{service=~\"$service\"}[5m])))",
+          "legendFormat": "{{route}}",
+          "refId": "A"
+        }
+      ]
+    }
+  ]
+}

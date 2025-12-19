@@ -1,0 +1,161 @@
+groups:
+  - name: node-alerts
+    rules:
+      # =====================================================
+      # AVAILABILITY
+      # =====================================================
+      - alert: NodeDown
+        expr: |
+          up{job="node"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: node
+        annotations:
+          title: 'Node Down ({{ $labels.instance }})'
+          description: 'Node exporter unreachable. The VM or host may be down or unreachable.'
+          runbook: 'runbooks/node.md#down'
+
+      # =====================================================
+      # CPU – SATURATION
+      # =====================================================
+      - alert: NodeHighCpuUsage
+        expr: |
+          1 - avg by (instance) (
+            rate(node_cpu_seconds_total{job="node", mode="idle"}[5m])
+          ) > 0.80
+        for: 5m
+        labels:
+          severity: warning
+          service: node
+        annotations:
+          title: 'High CPU Usage ({{ $labels.instance }})'
+          description: 'CPU usage exceeds 80% for 5 minutes.'
+          runbook: 'runbooks/node.md#cpu'
+
+      - alert: NodeCpuCritical
+        expr: |
+          1 - avg by (instance) (
+            rate(node_cpu_seconds_total{job="node", mode="idle"}[5m])
+          ) > 0.95
+        for: 2m
+        labels:
+          severity: critical
+          service: node
+        annotations:
+          title: 'CPU Saturated ({{ $labels.instance }})'
+          description: 'CPU usage exceeds 95%, scheduling latency expected.'
+          runbook: 'runbooks/node.md#cpu'
+
+      # =====================================================
+      # MEMORY – SATURATION
+      # =====================================================
+      - alert: NodeHighMemoryUsage
+        expr: |
+          node_memory_MemAvailable_bytes{job="node"}
+          / node_memory_MemTotal_bytes{job="node"} < 0.15
+        for: 5m
+        labels:
+          severity: warning
+          service: node
+        annotations:
+          title: 'High Memory Usage ({{ $labels.instance }})'
+          description: 'Available memory is below 15%.'
+          runbook: 'runbooks/node.md#memory'
+
+      - alert: NodeMemoryCritical
+        expr: |
+          node_memory_MemAvailable_bytes{job="node"}
+          / node_memory_MemTotal_bytes{job="node"} < 0.05
+        for: 2m
+        labels:
+          severity: critical
+          service: node
+        annotations:
+          title: 'Memory Exhaustion ({{ $labels.instance }})'
+          description: 'Available memory is below 5%, OOM risk is high.'
+          runbook: 'runbooks/node.md#memory'
+
+      # =====================================================
+      # DISK – SATURATION
+      # =====================================================
+      - alert: NodeDiskAlmostFull
+        expr: |
+          node_filesystem_avail_bytes{job="node", fstype!~"tmpfs|overlay"}
+          /
+          node_filesystem_size_bytes{job="node", fstype!~"tmpfs|overlay"} < 0.15
+        for: 10m
+        labels:
+          severity: warning
+          service: node
+        annotations:
+          title: 'Disk Almost Full ({{ $labels.instance }})'
+          description: 'Available disk space is below 15%.'
+          runbook: 'runbooks/node.md#disk'
+
+      - alert: NodeDiskCritical
+        expr: |
+          node_filesystem_avail_bytes{job="node", fstype!~"tmpfs|overlay"}
+          /
+          node_filesystem_size_bytes{job="node", fstype!~"tmpfs|overlay"} < 0.05
+        for: 2m
+        labels:
+          severity: critical
+          service: node
+        annotations:
+          title: 'Disk Full ({{ $labels.instance }})'
+          description: 'Available disk space is below 5%, write failures likely.'
+          runbook: 'runbooks/node.md#disk'
+
+      # =====================================================
+      # LOAD – SATURATION
+      # =====================================================
+      - alert: NodeHighLoad
+        expr: |
+          node_load15{job="node"}
+          /
+          count by (instance) (
+            node_cpu_seconds_total{job="node", mode="idle"}
+          ) > 1
+        for: 10m
+        labels:
+          severity: warning
+          service: node
+        annotations:
+          title: 'High System Load ({{ $labels.instance }})'
+          description: '15-minute system load exceeds CPU core count.'
+          runbook: 'runbooks/node.md#load'
+
+      # =====================================================
+      # IO WAIT – LATENCY
+      # =====================================================
+      - alert: NodeHighIOWait
+        expr: |
+          avg by (instance) (
+            rate(node_cpu_seconds_total{job="node", mode="iowait"}[5m])
+          ) > 0.20
+        for: 5m
+        labels:
+          severity: warning
+          service: node
+        annotations:
+          title: 'High IO Wait ({{ $labels.instance }})'
+          description: 'IO wait exceeds 20%, storage latency is likely.'
+          runbook: 'runbooks/node.md#disk'
+
+      # =====================================================
+      # NETWORK – ERRORS
+      # =====================================================
+      - alert: NodeNetworkErrors
+        expr: |
+          rate(node_network_receive_errs_total{job="node"}[5m]) > 1
+          or
+          rate(node_network_transmit_errs_total{job="node"}[5m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+          service: node
+        annotations:
+          title: 'Network Errors ({{ $labels.instance }})'
+          description: 'Network packet errors detected on the node.'
+          runbook: 'runbooks/node.md#network'

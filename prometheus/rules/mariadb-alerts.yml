@@ -1,0 +1,122 @@
+groups:
+  - name: mariadb-alerts
+    rules:
+      # =====================================================
+      # AVAILABILITY
+      # =====================================================
+      - alert: MariaDBDown
+        expr: |
+          up{job="mariadb"} == 0
+          or
+          mysql_up == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: mariadb
+        annotations:
+          title: 'MariaDB Down'
+          description: 'MariaDB exporter or database is unreachable for more than 2 minutes.'
+          runbook: 'runbooks/mariadb.md#down'
+
+      # =====================================================
+      # CONNECTIONS
+      # =====================================================
+      - alert: MariaDBTooManyConnections
+        expr: |
+          (
+            mysql_global_status_threads_connected
+            /
+            mysql_global_variables_max_connections
+          ) > 0.80
+        for: 5m
+        labels:
+          severity: warning
+          service: mariadb
+        annotations:
+          title: 'MariaDB High Connections'
+          description: 'Connections exceed 80% of max_connections for 5 minutes.'
+          runbook: 'runbooks/mariadb.md#connections'
+
+      - alert: MariaDBConnectionExhaustion
+        expr: |
+          (
+            mysql_global_status_threads_connected
+            /
+            mysql_global_variables_max_connections
+          ) > 0.95
+        for: 2m
+        labels:
+          severity: critical
+          service: mariadb
+        annotations:
+          title: 'MariaDB Connection Exhaustion'
+          description: 'Connections exceed 95%, new clients may be rejected.'
+          runbook: 'runbooks/mariadb.md#connections'
+
+      # =====================================================
+      # SLOW / HEAVY QUERIES
+      # =====================================================
+      - alert: MariaDBSlowQueries
+        expr: |
+          rate(mysql_global_status_slow_queries[5m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+          service: mariadb
+        annotations:
+          title: 'MariaDB Slow Queries Increasing'
+          description: 'Slow queries exceed 1 per second for 5 minutes.'
+          runbook: 'runbooks/mariadb.md#slow'
+
+      - alert: MariaDBQueryLatencyDegraded
+        expr: |
+          rate(mysql_global_status_questions[5m]) > 0
+          and
+          (
+            rate(mysql_global_status_slow_queries[5m])
+            /
+            rate(mysql_global_status_questions[5m])
+          ) > 0.10
+        for: 5m
+        labels:
+          severity: critical
+          service: mariadb
+        annotations:
+          title: 'MariaDB Query Latency Degraded'
+          description: 'More than 10% of queries are classified as slow.'
+          runbook: 'runbooks/mariadb.md#slow'
+
+      # =====================================================
+      # INNODB BUFFER POOL
+      # =====================================================
+      - alert: MariaDBHighBufferPoolUsage
+        expr: |
+          (
+            mysql_global_status_innodb_buffer_pool_bytes_data
+            /
+            mysql_global_variables_innodb_buffer_pool_size
+          ) > 0.90
+        for: 10m
+        labels:
+          severity: warning
+          service: mariadb
+        annotations:
+          title: 'InnoDB Buffer Pool High Usage'
+          description: 'InnoDB buffer pool usage exceeds 90% for 10 minutes.'
+          runbook: 'runbooks/mariadb.md#bufferpool'
+
+      - alert: MariaDBBufferPoolCritical
+        expr: |
+          (
+            mysql_global_status_innodb_buffer_pool_bytes_data
+            /
+            mysql_global_variables_innodb_buffer_pool_size
+          ) > 0.97
+        for: 5m
+        labels:
+          severity: critical
+          service: mariadb
+        annotations:
+          title: 'InnoDB Buffer Pool Critical'
+          description: 'InnoDB buffer pool usage exceeds 97%, risk of disk reads and latency.'
+          runbook: 'runbooks/mariadb.md#bufferpool'
