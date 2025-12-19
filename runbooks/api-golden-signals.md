@@ -51,32 +51,38 @@
 
 ## Traffic
 
-### Alert: `ApiLowTraffic`
+### Alert: `ApiHighTraffic`
 
 **Severity:** Warning
-**Meaning:** API request rate dropped below expected baseline.
+**Meaning:** API request rate is significantly higher than the normal baseline and may impact stability.
 
 #### Immediate Checks
 
-- Confirm traffic drop in Grafana dashboards
-- Check upstream services or clients
-- Validate ingress and load balancer health
+- Confirm traffic spike in Grafana dashboards
+- Check error rate and latency (RED metrics)
+- Identify top endpoints, clients, or regions driving traffic
+- Verify autoscaling status and pod/node capacity
 
 #### Diagnosis
 
-- Client outage or paused workload
-- DNS or routing misconfiguration
-- Authentication or authorization failures
+- Legitimate traffic surge (campaign, batch job, release)
+- Misbehaving client or retry storm
+- Bot, crawler, or abuse traffic
+- Traffic shift due to upstream routing or failover
+- Cache failure causing increased backend load
 
 #### Mitigation
 
-- Restore routing or load balancer configuration
-- Notify upstream service owners
-- Roll back recent gateway, auth, or routing changes
+- Ensure autoscaling is functioning correctly
+- Apply rate limiting or throttling if needed
+- Block or limit abusive IPs or clients
+- Scale infrastructure manually if autoscaling is insufficient
+- Roll back recent changes that may have triggered retries or loops
 
 #### Notes
 
-- This alert may be informational during off-peak hours
+- High traffic is not always an incident if error rate and latency remain healthy
+- Escalate severity if accompanied by increased errors, latency, or saturation
 
 ---
 
