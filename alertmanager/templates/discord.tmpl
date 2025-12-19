@@ -9,22 +9,21 @@
 {{- end }}
 
 ━━━━━━━━━━━━━━━━━━━━━━
-🔥 Status   :  {{- if eq .Status "firing" -}}FIRING{{- else -}}RESOLVED{{- end }}
-🚦 Severity :  {{- if .CommonLabels.severity -}}{{ .CommonLabels.severity }}{{- else -}}Unknown{{- end }}
-🧩 Service  :  {{- if .CommonLabels.service -}}{{ .CommonLabels.service }}{{- else -}}N/A{{- end }}
+🔥 Status   : {{- if eq .Status "firing" -}}FIRING{{- else -}}RESOLVED{{- end }}
+🚦 Severity : {{- if .CommonLabels.severity -}}{{ .CommonLabels.severity }}{{- else -}}Unknown{{- end }}
+🧩 Service  : {{- if .CommonLabels.service -}}{{ .CommonLabels.service }}{{- else -}}N/A{{- end }}
 
 {{- range .Alerts }}
 ━━━━━━━━━━━━━━━━━━━━━━
-
-🖥 Instance :  {{- if .Labels.instance -}}{{ .Labels.instance }}{{- else -}}N/A{{- end }}
-📄 Details  :  {{- if .Annotations.description -}}{{ .Annotations.description }}{{- else -}}No Description{{- end }}
+🖥 Instance : {{- if .Labels.instance -}}{{ .Labels.instance }}{{- else -}}N/A{{- end }}
+📄 Details  : {{- if .Annotations.description -}}{{ .Annotations.description }}{{- else -}}No Description{{- end }}
 
 {{- if .Annotations.runbook }}
 📘 Runbook
 https://github.com/bestzige/int531-monitoring-tools/tree/218/{{ .Annotations.runbook }}
 {{- end }}
 
-{{- if eq $.Status "firing" -}}Started{{- else -}}Resolved{{- end }} :
+⏱ {{- if eq $.Status "firing" -}}Started{{- else -}}Resolved{{- end }} :
 {{- if eq $.Status "firing" -}}
 {{ .StartsAt.Format "2006-01-02 15:04:05" }}
 {{- else -}}
@@ -34,6 +33,6 @@ https://github.com/bestzige/int531-monitoring-tools/tree/218/{{ .Annotations.run
 
 {{- if eq .Status "resolved" }}
 ━━━━━━━━━━━━━━━━━━━━━━
-System recovered and healthy.
+🧘 System recovered and healthy.
 {{- end }}
 {{- end -}}
