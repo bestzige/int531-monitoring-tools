@@ -6,7 +6,7 @@ groups:
       # =====================================================
       - alert: MariaDBDown
         expr: |
-          up{job="mariadb"} == 0 || (mysql_up == 0)
+          up{job="mariadb"} == 0 or mysql_up == 0
         for: 2m
         labels:
           severity: critical
