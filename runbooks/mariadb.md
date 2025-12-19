@@ -17,7 +17,7 @@
 ### Alert: `MariaDBDown`
 
 **Severity:** Critical
-**Trigger:** `up{job="mariadb"} == 0` **OR** `mysql_up == 0` for 2 minutes
+**Trigger:** `up{job="mariadb"} == 0` **OR** `mysql_up == 0` for 10 seconds
 
 **Meaning:**
 

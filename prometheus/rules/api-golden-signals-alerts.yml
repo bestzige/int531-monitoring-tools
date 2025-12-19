@@ -6,7 +6,7 @@ groups:
       # =====================================================
       - alert: ApiDown
         expr: |
-          up{job="api"} == 0
+          up{job="api_metrics"} == 0
         for: 1m
         labels:
           severity: critical
