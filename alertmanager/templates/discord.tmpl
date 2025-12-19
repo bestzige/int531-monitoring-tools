@@ -17,6 +17,7 @@
 🚦 Severity : {{ if .CommonLabels.severity }}{{ .CommonLabels.severity }}{{ else }}unknown{{ end }}
 🧩 Service  : {{ if .CommonLabels.service }}{{ .CommonLabels.service }}{{ else }}n/a{{ end }}
 
+{{ range .Alerts }}
 ━━━━━━━━━━━━━━━━━━━━━━
 🖥 Instance : {{ if .Labels.instance }}{{ .Labels.instance }}{{ else }}n/a{{ end }}
 📄 Details  : {{ if .Annotations.description }}{{ .Annotations.description }}{{ else }}no description{{ end }}
@@ -26,11 +27,12 @@
 https://github.com/bestzige/int531-monitoring-tools/tree/218/{{ .Annotations.runbook }}
 {{ end }}
 
-⏱ {{ if eq .Status "firing" }}Started{{ else }}Resolved{{ end }} :
-{{ if eq .Status "firing" }}
+⏱ {{ if eq $.Status "firing" }}Started{{ else }}Resolved{{ end }} :
+{{ if eq $.Status "firing" }}
 {{ .StartsAt.Format "2006-01-02 15:04:05" }}
 {{ else }}
 {{ .EndsAt.Format "2006-01-02 15:04:05" }}
+{{ end }}
 {{ end }}
 
 {{ if eq .Status "resolved" }}
