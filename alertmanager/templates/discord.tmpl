@@ -12,7 +12,6 @@
 {{ if and (eq .Status "firing") (eq .CommonLabels.severity "critical") -}}
 @here
 {{- end }}
-
 {{ range .Alerts }}
 **────────────────────────**
 ### 🖥️ Instance: `{{ if .Labels.instance }}{{ .Labels.instance }}{{ else }}N/A{{ end }}`
