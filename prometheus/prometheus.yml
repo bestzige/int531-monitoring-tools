@@ -29,13 +29,13 @@ scrape_configs:
       - targets:
           - x-nextjs-app:3000
 
+  - job_name: mariadb
+    static_configs:
+      - targets:
+          - x-mariadb-exporter:9104
+
   - job_name: node_exporter
     file_sd_configs:
       - files:
           - /etc/prometheus/targets/*.json
         refresh_interval: 5s
-
-  - job_name: mariadb
-    static_configs:
-      - targets:
-          - x-mariadb-exporter:9104
