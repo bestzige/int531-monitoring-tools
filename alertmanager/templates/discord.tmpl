@@ -1,38 +1,39 @@
-{{- define "discord.message" -}}
-{{- if eq .Status "firing" -}}🚨 **ALERT FIRING**
-{{- else -}}✅ **ALERT RESOLVED**
-{{- end }}
+{{ define "discord.message" }}
+{{ if eq .Status "firing" }}🚨 **ALERT FIRING**
+{{ else }}✅ **ALERT RESOLVED**
+{{ end }}
 
-**{{- if .CommonAnnotations.title -}}{{ .CommonAnnotations.title }}{{- else -}}{{ .CommonLabels.alertname }}{{- end -}}**
-{{- if eq .CommonLabels.severity "critical" }}
+**{{ if .CommonAnnotations.title }}{{ .CommonAnnotations.title }}{{ else }}{{ .CommonLabels.alertname }}{{ end }}**
+{{ if eq .CommonLabels.severity "critical" }}
 @here
-{{- end }}
+{{ end }}
 
 ━━━━━━━━━━━━━━━━━━━━━━
-🔥 Status   : {{- if eq .Status "firing" -}}FIRING{{- else -}}RESOLVED{{- end }}
-🚦 Severity : {{- if .CommonLabels.severity -}}{{ .CommonLabels.severity }}{{- else -}}Unknown{{- end }}
-🧩 Service  : {{- if .CommonLabels.service -}}{{ .CommonLabels.service }}{{- else -}}N/A{{- end }}
+🔥 **Status**   : {{ if eq .Status "firing" }}FIRING{{ else }}RESOLVED{{ end }}
+🚦 **Severity** : {{ if .CommonLabels.severity }}{{ .CommonLabels.severity }}{{ else }}Unknown{{ end }}
+🧩 **Service**  : {{ if .CommonLabels.service }}{{ .CommonLabels.service }}{{ else }}N/A{{ end }}
 
-{{- range .Alerts }}
+{{ range .Alerts }}
 ━━━━━━━━━━━━━━━━━━━━━━
-🖥 Instance : {{- if .Labels.instance -}}{{ .Labels.instance }}{{- else -}}N/A{{- end }}
-📄 Details  : {{- if .Annotations.description -}}{{ .Annotations.description }}{{- else -}}No Description{{- end }}
+🖥 **Instance** : {{ if .Labels.instance }}{{ .Labels.instance }}{{ else }}N/A{{ end }}
+📄 **Details**  : {{ if .Annotations.description }}{{ .Annotations.description }}{{ else }}No Description{{ end }}
 
-{{- if .Annotations.runbook }}
-📘 Runbook
+{{ if .Annotations.runbook }}
+📘 **Runbook**
 https://github.com/bestzige/int531-monitoring-tools/tree/218/{{ .Annotations.runbook }}
-{{- end }}
+{{ end }}
 
-⏱ {{- if eq $.Status "firing" -}}Started{{- else -}}Resolved{{- end }} :
-{{- if eq $.Status "firing" -}}
+⏱ **{{ if eq $.Status "firing" }}Started{{ else }}Resolved{{ end }}** :
+{{ if eq $.Status "firing" }}
 {{ .StartsAt.Format "2006-01-02 15:04:05" }}
-{{- else -}}
-{{ .EndsAt.Format "2006-01-02 15:04:5" }}
-{{- end }}
-{{- end }}
+{{ else }}
+{{ .EndsAt.Format "2006-01-02 15:04:05" }}
+{{ end }}
 
-{{- if eq .Status "resolved" }}
+{{ end }}
+
+{{ if eq .Status "resolved" }}
 ━━━━━━━━━━━━━━━━━━━━━━
-🧘 System recovered and healthy.
-{{- end }}
-{{- end -}}
+🧘 **System recovered and healthy.**
+{{ end }}
+{{ end }}
