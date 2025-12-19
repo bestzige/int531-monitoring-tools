@@ -19,16 +19,16 @@ groups:
       # =====================================================
       # TRAFFIC
       # =====================================================
-      - alert: ApiLowTraffic
+      - alert: ApiHighTraffic
         expr: |
-          sum(rate(api_http_requests_total{service="api"}[1d])) < 0.1
-        for: 1d
+          sum(rate(api_http_requests_total{service="api"}[5m])) > 100
+        for: 10m
         labels:
           severity: warning
           service: api
         annotations:
-          title: 'API Traffic Drop'
-          description: 'Request rate below 0.1 req/s for 1 day.'
+          title: 'API High Traffic'
+          description: 'Request rate above 100 req/s for 10 minutes.'
           runbook: 'runbooks/api-golden-signals.md#traffic'
 
       # =====================================================
