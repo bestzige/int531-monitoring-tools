@@ -15,6 +15,7 @@
 
 {{- range .Alerts }}
 ━━━━━━━━━━━━━━━━━━━━━━
+
 🖥 Instance : {{- if .Labels.instance -}}{{ .Labels.instance }}{{- else -}}N/A{{- end }}
 📄 Details  : {{- if .Annotations.description -}}{{ .Annotations.description }}{{- else -}}No Description{{- end }}
 
