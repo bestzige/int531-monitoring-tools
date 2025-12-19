@@ -8,8 +8,8 @@
 
 **Status:** `{{ if eq .Status "firing" }}FIRING{{ else }}RESOLVED{{ end }}` | **Severity:** `{{ if .CommonLabels.severity }}{{ .CommonLabels.severity }}{{ else }}UNKNOWN{{ end }}`
 **Service:** `{{ if .CommonLabels.service }}{{ .CommonLabels.service }}{{ else }}N/A{{ end }}`
-
 {{ if and (eq .Status "firing") (eq .CommonLabels.severity "critical") -}}
+
 @here
 {{- end }}
 {{ range .Alerts }}
