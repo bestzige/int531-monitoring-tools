@@ -11,7 +11,9 @@ groups:
           severity: critical
           service: node
         annotations:
-          title: '🔴 Node Down ({{ $labels.node | default $labels.instance }})'
+          title: >-
+            🔴 Node Down
+            ({{ if $labels.node }}{{ $labels.node }}{{ else }}{{ $labels.instance }}{{ end }})
           description: 'Node exporter unreachable. VM may be down or unreachable.'
           runbook: 'runbooks/node.md#down'
 
