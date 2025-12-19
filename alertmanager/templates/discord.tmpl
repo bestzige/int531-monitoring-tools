@@ -1,29 +1,22 @@
-{{ define "discord.title" -}}
-{{ if eq .Status "firing" -}}
-🔥 ALERT FIRING
-{{- else -}}
-✅ ALERT RESOLVED
-{{- end }}
-{{- end }}
-
 {{ define "discord.message" -}}
 
 {{ if eq .Status "firing" -}}
-🚨 **{{ .CommonAnnotations.title | default .CommonLabels.alertname }}**
+🚨 **{{ if .CommonAnnotations.title }}{{ .CommonAnnotations.title }}{{ else }}{{ .CommonLabels.alertname }}{{ end }}**
 {{- else -}}
-🎉 **{{ .CommonAnnotations.title | default .CommonLabels.alertname }}**
+🎉 **{{ if .CommonAnnotations.title }}{{ .CommonAnnotations.title }}{{ else }}{{ .CommonLabels.alertname }}{{ end }}**
 {{- end }}
 
 **Status:** {{ if eq .Status "firing" }}🔥 FIRING{{ else }}✅ RESOLVED{{ end }}
-**Severity:** {{ .CommonLabels.severity | default "unknown" }}
+**Severity:** {{ if .CommonLabels.severity }}{{ .CommonLabels.severity }}{{ else }}unknown{{ end }}
+
 {{- if .CommonLabels.service }}
 **Service:** {{ .CommonLabels.service }}
 {{- end }}
 
 ---
 {{ range .Alerts -}}
-🖥️ **Instance:** {{ .Labels.instance | default "n/a" }}
-📄 **Description:** {{ .Annotations.description | default "no description" }}
+🖥️ **Instance:** {{ if .Labels.instance }}{{ .Labels.instance }}{{ else }}n/a{{ end }}
+📄 **Description:** {{ if .Annotations.description }}{{ .Annotations.description }}{{ else }}no description{{ end }}
 
 {{- if .Annotations.runbook }}
 📘 **Runbook:** https://github.com/bestzige/int531-monitoring-tools/tree/218/{{ .Annotations.runbook }}
