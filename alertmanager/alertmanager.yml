@@ -16,5 +16,4 @@ receivers:
     discord_configs:
       - webhook_url: https://discord.com/api/webhooks/WEBHOOK_ID/WEBHOOK_TOKEN
         send_resolved: true
-        title: '{{ template "discord.title" . }}'
         message: '{{ template "discord.message" . }}'
