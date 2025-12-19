@@ -19,7 +19,7 @@
 ### Alert: `NodeDown`
 
 **Severity:** Critical
-**Trigger:** `up{job="node"} == 0` for 2 minutes
+**Trigger:** `up{job="node"} == 0` for 10 seconds
 
 **Meaning:**
 

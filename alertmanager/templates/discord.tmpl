@@ -1,8 +1,9 @@
 {{- define "discord.message" -}}
+
 {{- if eq .Status "firing" -}}
-**ALERT FIRING**
+🚨 **ALERT FIRING**
 {{- else -}}
-**ALERT RESOLVED**
+✅ **ALERT RESOLVED**
 {{- end }}
 
 ### {{- if .CommonAnnotations.title -}}
@@ -15,47 +16,58 @@
 @here
 {{- end }}
 
-**Status:** {{- if eq .Status "firing" -}}FIRING{{- else -}}RESOLVED{{- end }}
+---
 
-**Severity:** {{- if .CommonLabels.severity -}}
-{{ .CommonLabels.severity }}
+### 📌 Summary
+• **Status:** {{- if eq .Status "firing" -}}`FIRING`{{- else -}}`RESOLVED`{{- end }}
+
+• **Severity:** {{- if .CommonLabels.severity -}}
+`{{ .CommonLabels.severity }}`
 {{- else -}}
-unknown
+`unknown`
 {{- end }}
 
-**Service:** {{- if .CommonLabels.service -}}
-{{ .CommonLabels.service }}
+• **Service:** {{- if .CommonLabels.service -}}
+`{{ .CommonLabels.service }}`
 {{- else -}}
-N/A
+`N/A`
 {{- end }}
 
 ---
 
 {{- range .Alerts }}
-**Instance:** {{- if .Labels.instance -}}`{{ .Labels.instance }}`{{- else -}}`N/A`{{- end }}
 
-**Details:** {{- if .Annotations.description -}}
+### 🖥️ Instance
+{{- if .Labels.instance -}}
+`{{ .Labels.instance }}`
+{{- else -}}
+`N/A`
+{{- end }}
+
+### 📝 Details
+{{- if .Annotations.description -}}
 {{ .Annotations.description }}
 {{- else -}}
-No description
+No description provided
 {{- end }}
 
 {{- if .Annotations.runbook }}
-**Runbook:**  
-https://github.com/bestzige/int531-monitoring-tools/tree/main/{{ .Annotations.runbook }}
+### 📖 Runbook
+🔗 https://github.com/bestzige/int531-monitoring-tools/tree/main/{{ .Annotations.runbook }}
 {{- end }}
 
-**{{- if eq $.Status "firing" -}}Started{{- else -}}Resolved{{- end }} at:**  
+### ⏱️ Time
 {{- if eq $.Status "firing" -}}
-{{ .StartsAt.Format "2006-01-02 15:04:05" }}
+🟢 **Started:** `{{ .StartsAt.Format "2006-01-02 15:04:05" }}`
 {{- else -}}
-{{ .EndsAt.Format "2006-01-02 15:04:05" }}
+🔵 **Resolved:** `{{ .EndsAt.Format "2006-01-02 15:04:05" }}`
 {{- end }}
 
 ---
 {{- end }}
 
 {{- if eq .Status "resolved" }}
-**All alerts resolved. System is healthy.**
+🟢 **All alerts resolved. System is healthy.**
 {{- end }}
+
 {{- end -}}
