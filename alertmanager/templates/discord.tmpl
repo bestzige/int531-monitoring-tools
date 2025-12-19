@@ -1,37 +1,34 @@
-{{ define "discord.message" -}}
+{{ define "discord.message" }}
 
-{{ if eq .Status "firing" -}}
+{{ if eq .Status "firing" }}
 🚨 **{{ if .CommonAnnotations.title }}{{ .CommonAnnotations.title }}{{ else }}{{ .CommonLabels.alertname }}{{ end }}**
-{{- else -}}
+{{ else }}
 🎉 **{{ if .CommonAnnotations.title }}{{ .CommonAnnotations.title }}{{ else }}{{ .CommonLabels.alertname }}{{ end }}**
-{{- end }}
-
-**Status:** {{ if eq .Status "firing" }}🔥 FIRING{{ else }}✅ RESOLVED{{ end }}
-**Severity:** {{ if .CommonLabels.severity }}{{ .CommonLabels.severity }}{{ else }}unknown{{ end }}
-
-{{- if .CommonLabels.service }}
-**Service:** {{ .CommonLabels.service }}
-{{- end }}
-
----
-{{ range .Alerts -}}
-🖥️ **Instance:** {{ if .Labels.instance }}{{ .Labels.instance }}{{ else }}n/a{{ end }}
-📄 **Description:** {{ if .Annotations.description }}{{ .Annotations.description }}{{ else }}no description{{ end }}
-
-{{- if .Annotations.runbook }}
-📘 **Runbook:** https://github.com/bestzige/int531-monitoring-tools/tree/218/{{ .Annotations.runbook }}
-{{- end }}
-
-{{- if eq $.Status "firing" }}
-⏱️ **Started:** {{ .StartsAt }}
-{{- else }}
-🕒 **Resolved:** {{ .EndsAt }}
-{{- end }}
----
 {{ end }}
 
-{{ if eq .Status "resolved" -}}
-🧘 All clear. System is healthy again.
-{{- end }}
+Status: {{ if eq .Status "firing" }}🔥 FIRING{{ else }}✅ RESOLVED{{ end }}
+Severity: {{ if .CommonLabels.severity }}{{ .CommonLabels.severity }}{{ else }}unknown{{ end }}
+{{ if .CommonLabels.service }}Service: {{ .CommonLabels.service }}{{ end }}
 
-{{- end }}
+{{ range .Alerts }}
+────────────────────
+Instance: {{ if .Labels.instance }}{{ .Labels.instance }}{{ else }}n/a{{ end }}
+Description: {{ if .Annotations.description }}{{ .Annotations.description }}{{ else }}no description{{ end }}
+
+{{ if .Annotations.runbook }}
+Runbook:
+https://github.com/bestzige/int531-monitoring-tools/tree/218/{{ .Annotations.runbook }}
+{{ end }}
+
+{{ if eq $.Status "firing" }}
+Started: {{ .StartsAt }}
+{{ else }}
+Resolved: {{ .EndsAt }}
+{{ end }}
+{{ end }}
+
+{{ if eq .Status "resolved" }}
+🧘 All clear. System is healthy again.
+{{ end }}
+
+{{ end }}
