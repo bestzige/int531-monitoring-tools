@@ -12,7 +12,12 @@ receivers:
   - name: discord
     discord_configs:
       - webhook_url: https://discord.com/api/webhooks/WEBHOOK_ID/WEBHOOK_TOKEN
-        title: '{{ .CommonAnnotations.title | default .CommonLabels.alertname }}'
+        title: >-
+          {{ if .CommonAnnotations.title }}
+          {{ .CommonAnnotations.title }}
+          {{ else }}
+          {{ .CommonLabels.alertname }}
+          {{ end }}
         message: >-
           {{ range .Alerts -}}
           **Description:** {{ .Annotations.description }}
