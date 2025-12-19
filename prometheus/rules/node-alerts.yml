@@ -5,7 +5,9 @@ groups:
       # AVAILABILITY
       # =====================================================
       - alert: NodeDown
-        expr: up{job="node-exporter"} == 0
+        expr: |
+          up{job="node-exporter"} == 0
+          or up{job="node"} == 0
         for: 2m
         labels:
           severity: critical
