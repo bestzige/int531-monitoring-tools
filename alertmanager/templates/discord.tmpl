@@ -1,80 +1,32 @@
 {{- define "discord.message" -}}
 
 {{- if eq .Status "firing" -}}
-🚨 **ALERT FIRING**
+## 🚨 [FIRING] {{ if .CommonAnnotations.title }}{{ .CommonAnnotations.title }}{{ else }}{{ .CommonLabels.alertname }}{{ end }}
 {{- else -}}
-✅ **ALERT RESOLVED**
+## ✅ [RESOLVED] {{ if .CommonAnnotations.title }}{{ .CommonAnnotations.title }}{{ else }}{{ .CommonLabels.alertname }}{{ end }}
 {{- end }}
 
----
+**Severity:** `{{ if .CommonLabels.severity }}{{ .CommonLabels.severity | upper }}{{ else }}UNKNOWN{{ end }}` | **Service:** `{{ if .CommonLabels.service }}{{ .CommonLabels.service }}{{ else }}N/A{{ end }}`
 
-### 🔔 {{- if .CommonAnnotations.title -}}
-{{ .CommonAnnotations.title }}
-{{- else -}}
-{{ .CommonLabels.alertname }}
-{{- end }}
-
-{{- if eq .CommonLabels.severity "critical" }}
+{{ if and (eq .Status "firing") (eq .CommonLabels.severity "critical") -}}
 @here
 {{- end }}
 
----
+{{ range .Alerts }}
+**────────────────────────**
+### 🖥️ Instance: `{{ if .Labels.instance }}{{ .Labels.instance }}{{ else }}N/A{{ end }}`
 
-### 📌 Summary
-**Status:** `{{ if eq .Status "firing" }}FIRING{{ else }}RESOLVED{{ end }}`
+**📝 Description:**
+> {{ if .Annotations.description }}{{ .Annotations.description }}{{ else }}_No description provided_{{ end }}
 
-**Severity:**  
-{{- if .CommonLabels.severity -}}
-`{{ .CommonLabels.severity }}`
-{{- else -}}
-`unknown`
+{{ if .Annotations.runbook -}}
+**📘 Runbook:** [Click to Open](https://github.com/bestzige/int531-monitoring-tools/tree/main/{{ .Annotations.runbook }})
 {{- end }}
 
-**Service:**  
-{{- if .CommonLabels.service -}}
-`{{ .CommonLabels.service }}`
-{{- else -}}
-`N/A`
-{{- end }}
+**⏱️ {{ if eq $.Status "firing" }}Started at:{{ else }}Resolved at:{{ end }}** `{{ if eq $.Status "firing" }}{{ .StartsAt.Format "15:04:05 (2006-01-02)" }}{{ else }}{{ .EndsAt.Format "15:04:05 (2006-01-02)" }}{{ end }}`
+{{ end }}
 
----
-
-{{- range .Alerts }}
-
-### 🖥️ Instance
-{{- if .Labels.instance -}}
-`{{ .Labels.instance }}`
-{{- else -}}
-`N/A`
-{{- end }}
-
-### 📝 Details
-{{- if .Annotations.description }}
-{{ .Annotations.description }}
-{{- else }}
-_No description provided_
-{{- end }}
-
-{{- if .Annotations.runbook }}
-
-### 📘 Runbook
-🔗 https://github.com/bestzige/int531-monitoring-tools/tree/main/{{ .Annotations.runbook }}
-
-{{- end }}
-
-### ⏱️ {{- if eq $.Status "firing" }}Started{{ else }}Resolved{{ end }}
-{{- if eq $.Status "firing" -}}
-🟢 {{ .StartsAt.Format "2006-01-02 15:04:05" }}
-{{- else -}}
-🟣 {{ .EndsAt.Format "2006-01-02 15:04:05" }}
-{{- end }}
-
----
-
-{{- end }}
-
-{{- if eq .Status "resolved" }}
-🎉 **All alerts resolved — system is healthy.**
-{{- end }}
-
+{{ if eq .Status "resolved" }}
+**✨ System status is now healthy.**
+{{ end }}
 {{- end -}}
