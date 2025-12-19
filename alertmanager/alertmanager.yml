@@ -1,9 +1,6 @@
 global:
   resolve_timeout: 5m
 
-templates:
-  - /etc/alertmanager/templates/*.tmpl
-
 route:
   receiver: discord
   group_by: ['alertname', 'severity']
@@ -13,6 +10,16 @@ route:
 
 receivers:
   - name: discord
-    webhook_configs:
-      - url: https://discord.com/api/webhooks/WEBHOOK_ID/WEBHOOK_TOKEN
+    discord_configs:
+      - webhook_url: https://discord.com/api/webhooks/WEBHOOK_ID/WEBHOOK_TOKEN
+        title: '{{ .CommonAnnotations.title | default .CommonLabels.alertname }}'
+        message: >-
+          {{ range .Alerts -}}
+          **Description:** {{ .Annotations.description }}
+          **Severity:** {{ .Labels.severity }}
+          {{ if .Annotations.runbook }}
+          **Runbook:** {{ .Annotations.runbook }}
+          {{ end }}
+
+          {{ end }}
         send_resolved: true

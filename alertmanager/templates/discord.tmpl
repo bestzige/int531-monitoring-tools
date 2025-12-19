@@ -1,8 +1,0 @@
-{{ define "discord.default.message" }}
-🚨 **{{ .CommonLabels.alertname }}**
-
-{{ range .Alerts }}
-**Description:** {{ .Annotations.description }}
-**Severity:** {{ .Labels.severity }}
-{{ end }}
-{{ end }}
