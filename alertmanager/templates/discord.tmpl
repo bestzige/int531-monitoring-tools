@@ -6,7 +6,8 @@
 ## ✅ [RESOLVED] {{ if .CommonAnnotations.title }}{{ .CommonAnnotations.title }}{{ else }}{{ .CommonLabels.alertname }}{{ end }}
 {{- end }}
 
-**Severity:** `{{ if .CommonLabels.severity }}{{ .CommonLabels.severity | upper }}{{ else }}UNKNOWN{{ end }}` | **Service:** `{{ if .CommonLabels.service }}{{ .CommonLabels.service }}{{ else }}N/A{{ end }}`
+**Status:** `{{ if eq .Status "firing" }}FIRING{{ else }}RESOLVED{{ end }}` | **Severity:** `{{ if .CommonLabels.severity }}{{ .CommonLabels.severity }}{{ else }}UNKNOWN{{ end }}`
+**Service:** `{{ if .CommonLabels.service }}{{ .CommonLabels.service }}{{ else }}N/A{{ end }}`
 
 {{ if and (eq .Status "firing") (eq .CommonLabels.severity "critical") -}}
 @here
@@ -26,7 +27,8 @@
 **⏱️ {{ if eq $.Status "firing" }}Started at:{{ else }}Resolved at:{{ end }}** `{{ if eq $.Status "firing" }}{{ .StartsAt.Format "15:04:05 (2006-01-02)" }}{{ else }}{{ .EndsAt.Format "15:04:05 (2006-01-02)" }}{{ end }}`
 {{ end }}
 
-{{ if eq .Status "resolved" }}
+{{ if eq .Status "resolved" -}}
 **✨ System status is now healthy.**
-{{ end }}
+{{- end }}
+
 {{- end -}}
