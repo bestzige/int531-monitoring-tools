@@ -1,0 +1,44 @@
+{{ define "discord.title" -}}
+{{ if eq .Status "firing" -}}
+🔥 ALERT FIRING
+{{- else -}}
+✅ ALERT RESOLVED
+{{- end }}
+{{- end }}
+
+{{ define "discord.message" -}}
+
+{{ if eq .Status "firing" -}}
+🚨 **{{ .CommonAnnotations.title | default .CommonLabels.alertname }}**
+{{- else -}}
+🎉 **{{ .CommonAnnotations.title | default .CommonLabels.alertname }}**
+{{- end }}
+
+**Status:** {{ if eq .Status "firing" }}🔥 FIRING{{ else }}✅ RESOLVED{{ end }}
+**Severity:** {{ .CommonLabels.severity | default "unknown" }}
+{{- if .CommonLabels.service }}
+**Service:** {{ .CommonLabels.service }}
+{{- end }}
+
+---
+{{ range .Alerts -}}
+🖥️ **Instance:** {{ .Labels.instance | default "n/a" }}
+📄 **Description:** {{ .Annotations.description | default "no description" }}
+
+{{- if .Annotations.runbook }}
+📘 **Runbook:** https://github.com/bestzige/int531-monitoring-tools/tree/218/{{ .Annotations.runbook }}
+{{- end }}
+
+{{- if eq $.Status "firing" }}
+⏱️ **Started:** {{ .StartsAt }}
+{{- else }}
+🕒 **Resolved:** {{ .EndsAt }}
+{{- end }}
+---
+{{ end }}
+
+{{ if eq .Status "resolved" -}}
+🧘 All clear. System is healthy again.
+{{- end }}
+
+{{- end }}
